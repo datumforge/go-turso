@@ -102,3 +102,91 @@ func TestCreateGroup(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 }
+
+func TestAddLocation(t *testing.T) {
+	body := `{"group":{"archived":false,"locations":["lhr","ams","bos", "den"],"name":"meow","primary":"lhr","uuid":"0a28102d-6906-11ee-8553-eaa7715aeaf2","version":"v0.23.7"}}`
+	client := &Client{
+		cfg: &Config{
+			BaseURL: "http://localhost",
+		},
+		client: &MockHTTPRequestDoer{
+			Response: &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
+			},
+		},
+	}
+
+	// happy path
+	groupService := GroupService{client: client}
+	req := GroupLocationRequest{
+		GroupName: "meow",
+		Location:  "den",
+	}
+
+	resp, err := groupService.AddLocation(context.Background(), req)
+	require.NoError(t, err)
+	assert.Equal(t, resp.Group.Name, "meow")
+
+	// test error, missing location
+	req = GroupLocationRequest{
+		GroupName: "meow",
+	}
+
+	resp, err = groupService.AddLocation(context.Background(), req)
+	assert.Error(t, err)
+	assert.Nil(t, resp)
+
+	// test error, missing group name
+	req = GroupLocationRequest{
+		Location: "den",
+	}
+
+	resp, err = groupService.AddLocation(context.Background(), req)
+	assert.Error(t, err)
+	assert.Nil(t, resp)
+}
+
+func TestRemoveLocation(t *testing.T) {
+	body := `{"group":{"archived":false,"locations":["lhr","ams","bos"] ,"name":"meow","primary":"lhr","uuid":"0a28102d-6906-11ee-8553-eaa7715aeaf2","version":"v0.23.7"}}`
+	client := &Client{
+		cfg: &Config{
+			BaseURL: "http://localhost",
+		},
+		client: &MockHTTPRequestDoer{
+			Response: &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
+			},
+		},
+	}
+
+	// happy path
+	groupService := GroupService{client: client}
+	req := GroupLocationRequest{
+		GroupName: "meow",
+		Location:  "den",
+	}
+
+	resp, err := groupService.RemoveLocation(context.Background(), req)
+	require.NoError(t, err)
+	assert.Equal(t, resp.Group.Name, "meow")
+
+	// test error, missing location
+	req = GroupLocationRequest{
+		GroupName: "meow",
+	}
+
+	resp, err = groupService.RemoveLocation(context.Background(), req)
+	assert.Error(t, err)
+	assert.Nil(t, resp)
+
+	// test error, missing group name
+	req = GroupLocationRequest{
+		Location: "den",
+	}
+
+	resp, err = groupService.RemoveLocation(context.Background(), req)
+	assert.Error(t, err)
+	assert.Nil(t, resp)
+}

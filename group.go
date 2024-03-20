@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	groupEndpoint = "v1/organizations/%s/groups"
+	groupEndpoint    = "v1/organizations/%s/groups"
+	locationEndpoint = groupEndpoint + "%s/locations/%s"
 )
 
 // GroupService is the interface for the Turso API group endpoint
@@ -23,6 +24,10 @@ type groupService interface {
 	GetGroup(ctx context.Context, groupName string) (*GetGroupResponse, error)
 	// DeleteGroup deletes a group by name
 	DeleteGroup(ctx context.Context, groupName string) (*DeleteGroupResponse, error)
+	// AddLocation adds a location to a group
+	AddLocation(ctx context.Context, eq GroupLocationRequest) (*GroupLocationResponse, error)
+	// RemoveLocation adds a location to a group
+	RemoveLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error)
 }
 
 // Group is the struct for the Turso API group service
@@ -50,6 +55,19 @@ type CreateGroupResponse struct {
 	Group Group `json:"group"`
 }
 
+// GroupLocationRequest is the struct for the Turso API add location to group request
+type GroupLocationRequest struct {
+	// GroupName is the name of the group to add the location
+	GroupName string
+	// Location is the location to add to the group
+	Location string
+}
+
+// GroupLocationResponse is the struct for the Turso API add location to group response
+type GroupLocationResponse struct {
+	Group Group `json:"group"`
+}
+
 // DeleteGroupResponse is the struct for the Turso API group delete response
 type DeleteGroupResponse struct {
 	Group Group `json:"group"`
@@ -64,8 +82,14 @@ type CreateGroupRequest struct {
 
 // getGroupEndpoint returns the endpoint for the Turso API group service
 func getGroupEndpoint(baseURL, orgName string) string {
-	dbEndpoint := fmt.Sprintf(groupEndpoint, orgName)
-	return fmt.Sprintf("%s/%s", baseURL, dbEndpoint)
+	groupEndpoint := fmt.Sprintf(groupEndpoint, orgName)
+	return fmt.Sprintf("%s/%s", baseURL, groupEndpoint)
+}
+
+// getGroupLocationsEndpoint returns the endpoint for the Turso API group locations service
+func getGroupLocationsEndpoint(baseURL, orgName, groupName, locationName string) string {
+	locEndpoint := fmt.Sprintf(locationEndpoint, orgName, groupName, locationName)
+	return fmt.Sprintf("%s/%s", baseURL, locEndpoint)
 }
 
 // ListGroups satisfies the groupService interface
@@ -162,6 +186,70 @@ func (s *GroupService) DeleteGroup(ctx context.Context, groupName string) (*Dele
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, newBadRequestError("group", "deleting", resp.StatusCode)
+	}
+
+	return &out, nil
+}
+
+// AddLocation satisfies the groupService interface
+func (s *GroupService) AddLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error) {
+	if req.GroupName == "" {
+		return nil, newMissingRequiredFieldError("group name")
+	}
+
+	if req.Location == "" {
+		return nil, newMissingRequiredFieldError("location")
+	}
+
+	endpoint := getGroupLocationsEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName, req.GroupName, req.Location)
+
+	resp, err := s.client.DoRequest(ctx, http.MethodPost, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	// Decode the response
+	var out GroupLocationResponse
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, newBadRequestError("group", "creating", resp.StatusCode)
+	}
+
+	return &out, nil
+}
+
+// RemoveLocation satisfies the groupService interface
+func (s *GroupService) RemoveLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error) {
+	if req.GroupName == "" {
+		return nil, newMissingRequiredFieldError("group name")
+	}
+
+	if req.Location == "" {
+		return nil, newMissingRequiredFieldError("location")
+	}
+
+	endpoint := getGroupLocationsEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName, req.GroupName, req.Location)
+
+	resp, err := s.client.DoRequest(ctx, http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	// Decode the response
+	var out GroupLocationResponse
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, newBadRequestError("group", "creating", resp.StatusCode)
 	}
 
 	return &out, nil
