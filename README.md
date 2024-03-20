@@ -5,10 +5,16 @@
 
 Golang client for interacting with the Turso Platform API. 
 
+Currently supports the following endpoints:
+1. `Organizations`: `List`
+1. `Groups`: `List`, `Get`, `Create`, `Delete`
+1. `Databases`: `List`, `Get`, `Create`, `Delete`
+1. `Database Tokens`: `Create`
+
 ## Usage
 
 ```
-go get /github.com/datumforge/go-turso@latest
+go get github.com/datumforge/go-turso
 ```
 
 ```go
@@ -79,7 +85,7 @@ func main() {
 		Name:     "test-group",
 		Location: "ord",
 	}
-    
+
 	group, err := tc.Group.CreateGroup(context.Background(), g)
 	if err != nil {
 		fmt.Println("error creating group:", err)
@@ -118,3 +124,7 @@ func main() {
 	fmt.Println("Database Deleted:", deletedDatabase.Database)
 }
 ```
+
+## References
+
+1. [Turso Platform API](https://docs.turso.tech/api-reference/introduction)
