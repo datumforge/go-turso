@@ -87,7 +87,7 @@ func TestCreateGroup(t *testing.T) {
 
 	// happy path
 	groupService := GroupService{client: client}
-	req := GroupCreateRequest{
+	req := CreateGroupRequest{
 		Name: "meow",
 	}
 
@@ -96,7 +96,7 @@ func TestCreateGroup(t *testing.T) {
 	assert.Equal(t, resp.Group.Name, "meow")
 
 	// test error
-	req = GroupCreateRequest{}
+	req = CreateGroupRequest{}
 
 	resp, err = groupService.CreateGroup(context.Background(), req)
 	assert.Error(t, err)

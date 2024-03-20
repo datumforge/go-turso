@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// Create a new Group
-	g := turso.GroupCreateRequest{
+	g := turso.CreateGroupRequest{
 		Name:     "test-group",
 		Location: "ord",
 	}

@@ -18,7 +18,7 @@ type groupService interface {
 	// ListGroups lists all groups in the organization
 	ListGroups(ctx context.Context) (*ListGroupResponse, error)
 	// CreateGroup creates a new group in the organization
-	CreateGroup(ctx context.Context, req GroupCreateRequest) (*CreateGroupResponse, error)
+	CreateGroup(ctx context.Context, req CreateGroupRequest) (*CreateGroupResponse, error)
 	// GetGroup gets a group by name
 	GetGroup(ctx context.Context, groupName string) (*GetGroupResponse, error)
 	// DeleteGroup deletes a group by name
@@ -55,8 +55,8 @@ type DeleteGroupResponse struct {
 	Group Group `json:"group"`
 }
 
-// GroupCreateRequest is the struct for the Turso API group create request
-type GroupCreateRequest struct {
+// CreateGroupRequest is the struct for the Turso API group create request
+type CreateGroupRequest struct {
 	Extensions string `json:"extensions"`
 	Location   string `json:"location"`
 	Name       string `json:"name"`
@@ -92,7 +92,7 @@ func (s *GroupService) ListGroups(ctx context.Context) (*ListGroupResponse, erro
 }
 
 // CreateGroup satisfies the groupService interface
-func (s *GroupService) CreateGroup(ctx context.Context, group GroupCreateRequest) (*CreateGroupResponse, error) {
+func (s *GroupService) CreateGroup(ctx context.Context, group CreateGroupRequest) (*CreateGroupResponse, error) {
 	// Create the group
 	endpoint := getGroupEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName)
 
