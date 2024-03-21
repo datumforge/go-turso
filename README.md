@@ -9,6 +9,7 @@ Currently supports the following endpoints:
 1. `Organizations`: `List`
 1. `Groups`: `List`, `Get`, `Create`, `Delete`
 1. `Databases`: `List`, `Get`, `Create`, `Delete`
+1. `Database Locations`: `Add`, `Remove`
 1. `Database Tokens`: `Create`
 
 ## Usage
