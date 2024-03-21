@@ -26,7 +26,7 @@ type groupService interface {
 	DeleteGroup(ctx context.Context, groupName string) (*DeleteGroupResponse, error)
 	// AddLocation adds a location to a group
 	AddLocation(ctx context.Context, eq GroupLocationRequest) (*GroupLocationResponse, error)
-	// RemoveLocation adds a location to a group
+	// RemoveLocation removes a location from a group
 	RemoveLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error)
 }
 
@@ -55,7 +55,7 @@ type CreateGroupResponse struct {
 	Group Group `json:"group"`
 }
 
-// GroupLocationRequest is the struct for the Turso API add location to group request
+// GroupLocationRequest is the struct for the Turso API to add or remove a location to a group request
 type GroupLocationRequest struct {
 	// GroupName is the name of the group to add the location
 	GroupName string
@@ -63,7 +63,7 @@ type GroupLocationRequest struct {
 	Location string
 }
 
-// GroupLocationResponse is the struct for the Turso API add location to group response
+// GroupLocationResponse is the struct for the Turso API to add or remove location to group response
 type GroupLocationResponse struct {
 	Group Group `json:"group"`
 }
