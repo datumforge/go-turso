@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -117,6 +118,11 @@ func (s *GroupService) ListGroups(ctx context.Context) (*ListGroupResponse, erro
 
 // CreateGroup satisfies the groupService interface
 func (s *GroupService) CreateGroup(ctx context.Context, group CreateGroupRequest) (*CreateGroupResponse, error) {
+	// Validate the request
+	if err := validateGroupCreateRequest(group); err != nil {
+		return nil, err
+	}
+
 	// Create the group
 	endpoint := getGroupEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName)
 
@@ -193,12 +199,8 @@ func (s *GroupService) DeleteGroup(ctx context.Context, groupName string) (*Dele
 
 // AddLocation satisfies the groupService interface
 func (s *GroupService) AddLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error) {
-	if req.GroupName == "" {
-		return nil, newMissingRequiredFieldError("group name")
-	}
-
-	if req.Location == "" {
-		return nil, newMissingRequiredFieldError("location")
+	if err := validateLocationRequest(req); err != nil {
+		return nil, err
 	}
 
 	endpoint := getGroupLocationsEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName, req.GroupName, req.Location)
@@ -225,12 +227,8 @@ func (s *GroupService) AddLocation(ctx context.Context, req GroupLocationRequest
 
 // RemoveLocation satisfies the groupService interface
 func (s *GroupService) RemoveLocation(ctx context.Context, req GroupLocationRequest) (*GroupLocationResponse, error) {
-	if req.GroupName == "" {
-		return nil, newMissingRequiredFieldError("group name")
-	}
-
-	if req.Location == "" {
-		return nil, newMissingRequiredFieldError("location")
+	if err := validateLocationRequest(req); err != nil {
+		return nil, err
 	}
 
 	endpoint := getGroupLocationsEndpoint(s.client.cfg.BaseURL, s.client.cfg.OrgName, req.GroupName, req.Location)
@@ -253,4 +251,57 @@ func (s *GroupService) RemoveLocation(ctx context.Context, req GroupLocationRequ
 	}
 
 	return &out, nil
+}
+
+// validateGroupCreateRequest validates the group create request
+func validateGroupCreateRequest(req CreateGroupRequest) error {
+	if err := validateGroupName(req.Name); err != nil {
+		return err
+	}
+
+	if err := validateLocation(req.Location); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateGroupName validates the group name
+func validateGroupName(groupName string) error {
+	if groupName == "" {
+		return newMissingRequiredFieldError("name")
+	}
+
+	if strings.Contains(groupName, " ") {
+		return newInvalidFieldError("name", "spaces are not allowed")
+	}
+
+	return nil
+}
+
+// validateGroupName validates the group name
+func validateLocation(location string) error {
+	if location == "" {
+		return newMissingRequiredFieldError("location")
+	}
+
+	// all Turso locations are 3 characters
+	if len(location) != 3 { //nolint:gomnd
+		return newInvalidFieldError("location", "must be 3 characters")
+	}
+
+	return nil
+}
+
+// validateLocationRequest validates the group location request fields
+func validateLocationRequest(req GroupLocationRequest) error {
+	if req.GroupName == "" {
+		return newMissingRequiredFieldError("name")
+	}
+
+	if req.Location == "" {
+		return newMissingRequiredFieldError("location")
+	}
+
+	return nil
 }

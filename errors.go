@@ -60,3 +60,22 @@ func newMissingRequiredFieldError(field string) *MissingRequiredFieldError {
 		RequiredField: field,
 	}
 }
+
+// InvalidFieldError is returned when a required field does not meet the required criteria
+type InvalidFieldError struct {
+	Field   string
+	Message string
+}
+
+// Error returns the InvalidFieldError in string format
+func (e *InvalidFieldError) Error() string {
+	return fmt.Sprintf("%s is invalid, %s", e.Field, e.Message)
+}
+
+// newMissingRequiredField returns an error for a missing required field
+func newInvalidFieldError(field, message string) *InvalidFieldError {
+	return &InvalidFieldError{
+		Field:   field,
+		Message: message,
+	}
+}

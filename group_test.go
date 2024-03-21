@@ -88,7 +88,8 @@ func TestCreateGroup(t *testing.T) {
 	// happy path
 	groupService := GroupService{client: client}
 	req := CreateGroupRequest{
-		Name: "meow",
+		Name:     "meow",
+		Location: "ams",
 	}
 
 	resp, err := groupService.CreateGroup(context.Background(), req)
@@ -189,4 +190,66 @@ func TestRemoveLocation(t *testing.T) {
 	resp, err = groupService.RemoveLocation(context.Background(), req)
 	assert.Error(t, err)
 	assert.Nil(t, resp)
+}
+func TestValidateGroupCreateRequest(t *testing.T) {
+	tests := []struct {
+		name    string
+		request CreateGroupRequest
+		wantErr error
+	}{
+		{
+			name: "Valid request",
+			request: CreateGroupRequest{
+				Name:     "meow",
+				Location: "ams",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "missing name",
+			request: CreateGroupRequest{
+				Name:     "",
+				Location: "ams",
+			},
+			wantErr: &MissingRequiredFieldError{RequiredField: "name"},
+		},
+		{
+			name: "invalid name",
+			request: CreateGroupRequest{
+				Name:     "my group",
+				Location: "ams",
+			},
+			wantErr: &InvalidFieldError{Field: "name", Message: "spaces are not allowed"},
+		},
+		{
+			name: "missing location",
+			request: CreateGroupRequest{
+				Name:     "the-best",
+				Location: "",
+			},
+			wantErr: &MissingRequiredFieldError{RequiredField: "location"},
+		},
+		{
+			name: "invalid location",
+			request: CreateGroupRequest{
+				Name:     "the-best",
+				Location: "us",
+			},
+			wantErr: &InvalidFieldError{Field: "location", Message: "must be 3 characters"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateGroupCreateRequest(tt.request)
+			if tt.wantErr != nil {
+				require.Error(t, err)
+				assert.ErrorContains(t, err, tt.wantErr.Error())
+
+				return
+			}
+
+			require.NoError(t, err)
+		})
+	}
 }
