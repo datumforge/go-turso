@@ -60,6 +60,20 @@ type Database struct {
 	Sleeping bool `json:"sleeping"`
 }
 
+// CreateDatabase is the struct for the Turso API database create request
+type CreateDatabase struct {
+	// DatabaseID is the ID of the database
+	DatabaseID string `json:"DbId"`
+	// Name is the name of the database
+	Name string `json:"Name"`
+	// Hostname is the hostname of the database
+	Hostname string `json:"Hostname"`
+	// IssuedCertCount is the number of certificates issued
+	IssuedCertCount int `json:"IssuedCertCount"`
+	// IssuedCertLimit is the limit of certificates that can be issued
+	IssuedCertLimit int `json:"IssuedCertLimit"`
+}
+
 // ListDatabaseResponse is the struct for the Turso API database list response
 type ListDatabaseResponse struct {
 	Databases []*Database `json:"databases"`
@@ -72,18 +86,7 @@ type GetDatabaseResponse struct {
 
 // CreateDatabaseResponse is the struct for the Turso API database create response
 type CreateDatabaseResponse struct {
-	Database struct {
-		// DatabaseID is the ID of the database
-		DatabaseID string `json:"DbId"`
-		// Name is the name of the database
-		Name string `json:"Name"`
-		// Hostname is the hostname of the database
-		Hostname string `json:"Hostname"`
-		// IssuedCertCount is the number of certificates issued
-		IssuedCertCount int `json:"IssuedCertCount"`
-		// IssuedCertLimit is the limit of certificates that can be issued
-		IssuedCertLimit int `json:"IssuedCertLimit"`
-	} `json:"database"`
+	Database CreateDatabase `json:"database"`
 }
 
 // DeleteDatabaseResponse is the struct for the Turso API database delete response

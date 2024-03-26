@@ -12,59 +12,23 @@ import (
 )
 
 func TestListDatabases(t *testing.T) {
-	body := `{"databases":[{"DbId":"0eb771dd-6906-11ee-8553-eaa7715aeaf2","Hostname":"[databaseName]-[organizationName].turso.io","Name":"my-db","allow_attach":true,"blocked_reads":true,"blocked_writes":true,"group":"default","is_schema":true,"primaryRegion":"lhr","regions":["lhr","bos","nrt"],"schema":"<string>","sleeping":true,"type":"logical","version":"0.22.22"}]}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	databaseService := newMockDatabaseService()
 
-	databaseService := DatabaseService{client: client}
 	resp, err := databaseService.ListDatabases(context.Background())
 	require.NoError(t, err)
 	assert.Len(t, resp.Databases, 1)
 }
 func TestGetDatabase(t *testing.T) {
-	body := `{"database":{"DbId":"0eb771dd-6906-11ee-8553-eaa7715aeaf2","Hostname":"[databaseName]-[organizationName].turso.io","Name":"my-db","allow_attach":true,"blocked_reads":true,"blocked_writes":true,"group":"default","is_schema":true,"primaryRegion":"lhr","regions":["lhr","bos","nrt"],"schema":"<string>","sleeping":true,"type":"logical","version":"0.22.22"}}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	databaseService := newMockDatabaseService()
 
-	databaseService := DatabaseService{client: client}
 	resp, err := databaseService.GetDatabase(context.Background(), "my-db")
 	require.NoError(t, err)
 	assert.Equal(t, resp.Database.Name, "my-db")
 }
 
 func TestDeleteDatabase(t *testing.T) {
-	body := `{"database": "my-db"}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	databaseService := newMockDatabaseService()
 
-	databaseService := DatabaseService{client: client}
 	resp, err := databaseService.DeleteDatabase(context.Background(), "my-db")
 	require.NoError(t, err)
 	assert.Equal(t, resp.Database, "my-db")
