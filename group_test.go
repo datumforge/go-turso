@@ -12,62 +12,26 @@ import (
 )
 
 func TestListGroups(t *testing.T) {
-	body := `{"groups":[{"archived":true,"locations":["lhr","ams","bos"],"name":"default","primary":"lhr","uuid":"0a28102d-6906-11ee-8553-eaa7715aeaf2","version":"v0.23.7"}]}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	groupService := newMockGroupService()
 
-	groupService := GroupService{client: client}
 	resp, err := groupService.ListGroups(context.Background())
 	require.NoError(t, err)
 	assert.Len(t, resp.Groups, 1)
 }
 func TestGetGroup(t *testing.T) {
-	body := `{"group":{"archived":true,"locations":["lhr","ams","bos"],"name":"meow","primary":"lhr","uuid":"0a28102d-6906-11ee-8553-eaa7715aeaf2","version":"v0.23.7"}}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	groupService := newMockGroupService()
 
-	groupService := GroupService{client: client}
 	resp, err := groupService.GetGroup(context.Background(), "meow")
 	require.NoError(t, err)
 	assert.Equal(t, resp.Group.Name, "meow")
 }
 
 func TestDeleteGroup(t *testing.T) {
-	body := `{"group":{"archived":true,"locations":["lhr","ams","bos"],"name":"meow","primary":"lhr","uuid":"0a28102d-6906-11ee-8553-eaa7715aeaf2","version":"v0.23.7"}}`
-	client := &Client{
-		cfg: &Config{
-			BaseURL: "http://localhost",
-		},
-		client: &MockHTTPRequestDoer{
-			Response: &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-			},
-		},
-	}
+	groupService := newMockGroupService()
 
-	groupService := GroupService{client: client}
 	resp, err := groupService.DeleteGroup(context.Background(), "meow")
 	require.NoError(t, err)
-	assert.Equal(t, resp.Group.Name, "meow")
+	assert.Equal(t, resp.Group.Name, "woof")
 	assert.True(t, resp.Group.Archived)
 }
 
