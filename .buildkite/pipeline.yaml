@@ -9,7 +9,7 @@ steps:
   - label: ":golangci-lint: lint :lint-roller:"
     key: "lint"
     plugins:
-      - docker#v5.10.0:
+      - docker#v5.11.0:
           image: "registry.hub.docker.com/golangci/golangci-lint:v1.57.1"
           command: ["golangci-lint", "run", "-v", "--timeout", "10m"]
           environment: 
@@ -17,7 +17,7 @@ steps:
   - label: ":golang: go test"
     key: "go_test"
     plugins:
-      - docker#v5.10.0:
+      - docker#v5.11.0:
           image: golang:1.22
           command: ["go", "test", "-coverprofile=coverage.out","./..."]
     artifact_paths: ["coverage.out"]
@@ -29,7 +29,7 @@ steps:
   - label: ":closed_lock_with_key: gosec"
     key: "gosec"
     plugins:
-      - docker#v5.10.0:
+      - docker#v5.11.0:
           image: "registry.hub.docker.com/securego/gosec:2.18.2"
           command: ["-no-fail", "-exclude-generated", "-fmt sonarqube", "-out", "results.txt", "./..."]
           environment:
@@ -46,7 +46,7 @@ steps:
       - artifacts#v1.9.3:
           download: "coverage.out"
           step: "go_test"    
-      - docker#v5.10.0:
+      - docker#v5.11.0:
             image: "sonarsource/sonar-scanner-cli:5"
             environment:
               - "SONAR_TOKEN"
@@ -63,7 +63,7 @@ steps:
       - artifacts#v1.9.3:
           download: coverage.out
           step: "go_test"
-      - docker#v5.10.0:
+      - docker#v5.11.0:
             image: "sonarsource/sonar-scanner-cli:5"
             environment:
               - "SONAR_TOKEN"
